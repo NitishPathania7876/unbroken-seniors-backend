@@ -7,9 +7,9 @@ const connectDB = require('./src/db/db').connectDB;
 const PORT = process.env.PORT || 2512;
 // Serve static files
 app.use(express.static("public"));
-app.use(express.static(path.resolve(__dirname, "./build")));
+app.use(express.static(path.resolve(__dirname, "./dist")));
 app.get(/^\/(?!api).*/, (req, res) => {
-  res.sendFile(path.resolve(__dirname, "./build", "index.html"));
+  res.sendFile(path.resolve(__dirname, "./dist", "index.html"));
 });
 connectDB().then(() => {
   app.listen(PORT, () => {
