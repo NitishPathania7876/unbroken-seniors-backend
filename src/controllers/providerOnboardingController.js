@@ -5,16 +5,18 @@ exports.createProvider = async (req, res) => {
     const {
       businessName,
       businessAddress,
+      phoneNumber,
       serviceAreas,
       serviceTypes,
       certifications,
       galleryImages,
-      userId // assuming this is coming from frontend or logged-in user
+      userId
     } = req.body;
 
     const newProvider = await ProviderOnboarding.create({
       businessName,
       businessAddress,
+      phoneNumber,
       serviceAreas,
       serviceTypes,
       certifications,
@@ -27,7 +29,6 @@ exports.createProvider = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 // Get all onboardings
 exports.getAllProviders = async (req, res) => {
   try {
@@ -37,12 +38,12 @@ exports.getAllProviders = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 // Get by ID
 exports.getProviderById = async (req, res) => {
   try {
     const { id } = req.params;
-    const provider = await ProviderOnboarding.findByPk(id);
+    const userId = id
+    const provider = await ProviderOnboarding.findAll({ where: { userId } });
     if (!provider) return res.status(404).json({ message: 'Provider not found' });
     res.status(200).json(provider);
   } catch (error) {

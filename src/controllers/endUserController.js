@@ -3,6 +3,7 @@ const EndUser = require('../models/endUserModal')(sequelize);
 const bcrypt = require('bcrypt');
 const fs = require('fs/promises');
 const path = require('path');
+const jwt = require('jsonwebtoken');
 const { generateEndUserId } = require('../utils/helperFunctions');
 const PUBLIC_ROOT = path.join(__dirname, '..', 'public');
 const normalizeRelPath = (rel) =>
@@ -24,7 +25,20 @@ const createUser = async (req, res) => {
     const user = await EndUser.create({
       userId: id, firstName, email, lastName, password
     });
-    res.status(201).json({ message: 'User created successfully', user: { ...user.toJSON(), password: undefined } });
+    // Remove password before returning user
+    const safeUser = { ...user.toJSON() };
+    delete safeUser.password;
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: user.userId, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+    res.status(201).json({
+      message: 'User created successfully',
+      user: safeUser,
+      token
+    });
   } catch (error) {
     console.error('Error creating user:', error);
     res.status(500).json({ error: 'Failed to create user', details: error.message });

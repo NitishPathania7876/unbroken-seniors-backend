@@ -4,6 +4,8 @@ const { sendEmail } = require("../utils/emailService");
 const { otpEmailTemplate } = require("../utils/emailTemplates");
 const { generateOTP, generateEndUserId } = require("../utils/helperFunctions");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+
 const LoginWithEmailOTP = async (req, res) => {
   const { email, name = "" } = req.body;
   if (!email) return res.status(400).json({ error: "Email is required" });
@@ -75,9 +77,7 @@ const LoginWithEmailOTP = async (req, res) => {
       details: err.message,
     });
   }
-};
-
-// Function to verify OTP and log in user
+};// Function to verify OTP and log in user
 const verifyEmailOTP = async (req, res) => {
   const { email, otp } = req.body;
 
@@ -135,8 +135,46 @@ const verifyEmailOTP = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error", details: err.message });
   }
 };
+const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // Check if user exists
+    const user = await EndUser.findOne({ where: { email } });
+    if (!user) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    // Remove password before sending back
+    const safeUser = { ...user.toJSON() };
+    delete safeUser.password;
+
+    // Generate token
+    const token = jwt.sign(
+      { id: user.userId, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.status(200).json({
+      message: "Login successful",
+      user: safeUser,
+      token,
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ error: "Login failed", details: error.message });
+  }
+};
 
 module.exports = {
   LoginWithEmailOTP,
   verifyEmailOTP,
+  login
 };

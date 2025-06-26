@@ -9,6 +9,10 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    phoneNumber: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     serviceAreas: {
       type: DataTypes.TEXT,
       get() {
@@ -61,5 +65,6 @@ module.exports = (sequelize) => {
     tableName: 'provider_onboardings',
     timestamps: false
   });
+
   return ProviderOnboarding;
 };
