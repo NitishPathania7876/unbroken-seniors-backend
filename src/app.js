@@ -15,11 +15,12 @@ app.use(express.static("public"));
 //auth Routes
 const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);
-//enduser Routes    
+const providerOnboarding = require('./routes/providerOnboardingRoutes');
 const endUserRoutes = require('./routes/endUserRoutes');
+//enduser Routes    
 app.use('/api/endusers', endUserRoutes);
-
-
+//provider Routes
+app.use('/api/onboarding', providerOnboarding);
 
 
 

@@ -1,30 +1,33 @@
 const { sequelize } = require('../db/db');
+
 const EndUser = require('./endUserModal')(sequelize);
-// Define relationships
-// EndUser.hasMany(BusinessDetails, { foreignKey: 'userId', targetKey: 'userId' });
-// BusinessDetails.belongsTo(EndUser, { foreignKey: 'userId', targetKey: 'userId' });
-// Sync tables in order to respect foreign key dependencies
+const ProviderOnboarding = require('./ProviderOnboardingModal')(sequelize);
+// 1:Many relationship
+EndUser.hasMany(ProviderOnboarding, {
+  foreignKey: 'userId',
+  sourceKey: 'userId'
+});
+ProviderOnboarding.belongsTo(EndUser, {
+  foreignKey: 'userId',
+  targetKey: 'userId'
+});
+// Sync tables
 async function syncDatabase() {
   try {
-    await EndUser.sync({ force: false }); 
+    await sequelize.sync({ force: false }); // Set force to true to reset tables
     console.log('Database and tables synced');
   } catch (error) {
     console.error('Error syncing database:', error);
   }
 }
+
 syncDatabase();
+
 module.exports = {
   sequelize,
-  EndUser
+  EndUser,
+  ProviderOnboarding
 };
-
-
-
-
-
-
-
-
 
 
 
