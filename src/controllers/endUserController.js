@@ -1,7 +1,7 @@
 const { sequelize } = require('../db/db');
 const EndUser = require('../models/endUserModal')(sequelize);
 const bcrypt = require('bcrypt');
-const fs = require('fs/promises');
+const fs = require('fs');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 const { generateEndUserId } = require('../utils/helperFunctions');
@@ -15,7 +15,7 @@ const createUser = async (req, res) => {
   const { firstName, email, lastName, password } = req.body;
   const id = await generateEndUserId()
   try {
-    // Check if email already exists
+   
     const existingUser = await EndUser.findOne({ where: { email } });
 
     if (existingUser) {
@@ -63,27 +63,43 @@ const getUser = async (req, res) => {
 };
 
 // Update user
+
+
 const updateUser = async (req, res) => {
   const { userId } = req.params;
-  const { voiceId, name, email, phone, password, address, city, state, country, zip } = req.body;
+  const { firstName, lastName, email, password , address , city , state , country , phoneNumber } = req.body;
+  const uploadedFile = req.file?.filename;
+
   try {
     const user = await EndUser.findByPk(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
+
+    // Delete old profile picture only if a new one is uploaded
+    if (uploadedFile && user.profilePicture) {
+      const oldPath = path.join(__dirname, '..', 'public', user.profilePicture.replace('/uploads/', '')); // trim leading path
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath);
+      }
+    }
+
+    // Save path like: /upload/userProfile/filename.png
+    const profilePicturePath = uploadedFile ? path.join('/uploads/userProfile', uploadedFile).replace(/\\/g, '/') : undefined;
+
+    // Update user
     await user.update({
-      voiceId,
-      name,
+      firstName,
+      lastName,
       email,
-      phone,
-      password, // Password is hashed in the model
-      address,
-      city,
-      state,
-      country,
-      zip,
+      password,address , city , state , country , phoneNumber , 
+      ...(profilePicturePath && { profilePicture: profilePicturePath }),
     });
-    res.json({ message: 'User updated successfully', user: { ...user.toJSON(), password: undefined } });
+
+    res.json({
+      message: 'User updated successfully',
+      user: { ...user.toJSON(), password: undefined },
+    });
   } catch (error) {
     console.error('Error updating user:', error);
     res.status(500).json({ error: 'Failed to update user', details: error.message });

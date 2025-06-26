@@ -40,6 +40,36 @@ module.exports = (sequelize) => {
         notEmpty: true,
       },
     },
+     profilePicture: {
+      type: DataTypes.STRING(450),
+      allowNull: true,
+      
+    },
+      address: {
+      type: DataTypes.STRING(450),
+      allowNull: true,
+      
+    },
+      city: {
+      type: DataTypes.STRING(450),
+      allowNull: true,
+      
+    },
+      phoneNumber: {
+      type: DataTypes.NUMBER,
+      allowNull: true,
+      
+    },
+      state: {
+      type: DataTypes.STRING(450),
+      allowNull: true,
+      
+    },
+      country: {
+      type: DataTypes.STRING(450),
+      allowNull: true,
+      
+    },
   }, {
     indexes: [
       { fields: ['email'] },
