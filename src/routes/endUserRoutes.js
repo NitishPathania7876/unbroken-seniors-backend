@@ -16,7 +16,7 @@ const upload   =require('./../middlewares/multer')
 router.post('/users', createUser);
 router.post('/users/login', loginUser);
 router.get('/users/:userId', getUser);
-router.put('/users/:userId', updateUser);
+router.put('/users/:userId', upload.single("profilePicture") ,  updateUser);
 router.delete('/users/:userId', deleteUser);
 router.get('/getAllUsers',authMiddleware, getAllUsers);
 router.post("/verifyToken",verifyToken)

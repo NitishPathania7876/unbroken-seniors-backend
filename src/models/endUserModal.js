@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const bcrypt = require('bcrypt');
-
 module.exports = (sequelize) => {
   const EndUser = sequelize.define('EndUser', {
     userId: {
@@ -40,6 +39,36 @@ module.exports = (sequelize) => {
       validate: {
         notEmpty: true,
       },
+    },
+     profilePicture: {
+      type: DataTypes.STRING(450),
+      allowNull: true,
+      
+    },
+      address: {
+      type: DataTypes.STRING(450),
+      allowNull: true,
+      
+    },
+      city: {
+      type: DataTypes.STRING(450),
+      allowNull: true,
+      
+    },
+      phoneNumber: {
+      type: DataTypes.NUMBER,
+      allowNull: true,
+      
+    },
+      state: {
+      type: DataTypes.STRING(450),
+      allowNull: true,
+      
+    },
+      country: {
+      type: DataTypes.STRING(450),
+      allowNull: true,
+      
     },
   }, {
     indexes: [
