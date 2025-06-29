@@ -1,7 +1,7 @@
 const { sequelize } = require('../db/db');
 
 const EndUser = require('./endUserModal')(sequelize);
-const ProviderOnboarding = require('./ProviderOnboardingModal')(sequelize);
+const ProviderOnboarding = require('../models/providerOnboardingModal')(sequelize);
 // 1:Many relationship
 EndUser.hasMany(ProviderOnboarding, {
   foreignKey: 'userId',
