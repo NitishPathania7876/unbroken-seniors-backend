@@ -60,7 +60,16 @@ module.exports = (sequelize) => {
     createdAt: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW
-    }
+    },
+    userId: {
+      type: DataTypes.STRING(50),
+      primaryKey: true, 
+      unique: true,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
   }, {
     tableName: 'provider_onboardings',
     timestamps: false

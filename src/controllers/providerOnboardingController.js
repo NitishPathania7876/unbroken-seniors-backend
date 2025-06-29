@@ -1,4 +1,5 @@
-const { ProviderOnboarding } = require('../models/providerOnboardingModal');
+const { sequelize } = require('../db/db');
+const ProviderOnboarding = require('../models/providerOnboardingModal')(sequelize)
 //  Add new onboarding
 exports.createProvider = async (req, res) => {
   try {
@@ -13,7 +14,7 @@ exports.createProvider = async (req, res) => {
       userId
     } = req.body;
 
-    const newProvider = await ProviderOnboarding?.create({
+    const newProvider = await ProviderOnboarding.create({
       businessName,
       businessAddress,
       phoneNumber,
@@ -34,7 +35,7 @@ exports.createProvider = async (req, res) => {
 
 exports.getAllProviders = async (req, res) => {
   try {
-    const providers = await ProviderOnboarding?.findAll();
+    const providers = await ProviderOnboarding.findAll();
     res.status(200).json(providers);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -45,7 +46,7 @@ exports.getProviderById = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = id
-    const provider = await ProviderOnboarding?.findAll({ where: { userId } });
+    const provider = await ProviderOnboarding.findAll({ where: { userId } });
     if (!provider) return res.status(404).json({ message: 'Provider not found' });
     res.status(200).json(provider);
   } catch (error) {
