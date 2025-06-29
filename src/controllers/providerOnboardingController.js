@@ -1,4 +1,4 @@
-const { ProviderOnboarding } = require('../models');
+const { ProviderOnboarding } = require('../models/providerOnboardingModal');
 //  Add new onboarding
 exports.createProvider = async (req, res) => {
   try {
@@ -30,6 +30,8 @@ exports.createProvider = async (req, res) => {
   }
 };
 // Get all onboardings
+// fgh
+
 exports.getAllProviders = async (req, res) => {
   try {
     const providers = await ProviderOnboarding.findAll();
