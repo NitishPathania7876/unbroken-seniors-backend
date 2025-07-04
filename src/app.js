@@ -17,11 +17,12 @@ const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);
 const providerOnboarding = require('./routes/providerOnboardingRoutes');
 const endUserRoutes = require('./routes/endUserRoutes');
+const providerSearch=require("./routes/providerSearchRoutes")
 //enduser Routes    
 app.use('/api/endusers', endUserRoutes);
 //provider Routes
 app.use('/api/onboarding', providerOnboarding);
-
+app.use('/api/providers',providerSearch );
 
 
 
