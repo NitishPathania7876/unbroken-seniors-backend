@@ -1,37 +1,70 @@
 const { sequelize } = require('../db/db');
-const ProviderOnboarding = require('../models/providerOnboardingModal')(sequelize)
+const { Op } = require("sequelize");
+const ProviderOnboarding = require('../models/providerOnboardingModal')(sequelize);
+
 exports.searchProviders = async (req, res) => {
   try {
-    const { state, pincode, serviceType } = req.query;
+    const { state, serviceType, category, priority } = req.query;
 
-    if (!state || !pincode || !serviceType) {
-      return res.status(400).json({ message: "State, pincode, and serviceType are required" });
+    if (!state || !serviceType) {
+      return res.status(400).json({ message: "State and serviceType are required" });
     }
 
-    // Fetch providers by state only first
-    const allProviders = await ProviderOnboarding.findAll({
-      where: { state }
-    });
+    const normalizedState = state.trim().toLowerCase();
+    const normalizedServiceType = serviceType.trim().toLowerCase();
+    const normalizedCategory = category?.trim().toLowerCase();
+    const normalizedPriority = priority?.trim().toLowerCase();
 
-    // Filter providers based on pincode inside serviceAreas & serviceType
-    const filtered = allProviders.filter(provider => {
-    const serviceAreas = Array.isArray(provider.serviceAreas)
-  ? provider.serviceAreas
-  : JSON.parse(provider.serviceAreas || '[]');
+    // Build Sequelize where clause
+    const whereClause = {
+      state: { [Op.like]: `%${normalizedState}%` },
+    };
 
-const services = Array.isArray(provider.serviceTypes)
-  ? provider.serviceTypes
-  : JSON.parse(provider.serviceTypes || '[]');
+    if (normalizedCategory) {
+      whereClause.category = { [Op.iLike]: `%${normalizedCategory}%` }; // PostgreSQL
+    }
 
-      const pincodeMatch = serviceAreas.some(area => area.pincode === pincode);
-      const serviceMatch = services.includes(serviceType);
- console.log(serviceMatch)
-      return pincodeMatch && serviceMatch;
-    });
+    if (normalizedPriority) {
+      whereClause.priority = { [Op.iLike]: `%${normalizedPriority}%` };
+    }
 
-    res.status(200).json(filtered);
+    const allProviders = await ProviderOnboarding.findAll({ where: whereClause });
+
+    const filteredProviders = allProviders
+      .map(provider => {
+        let serviceTypes = [];
+
+        if (Array.isArray(provider.serviceTypes)) {
+          serviceTypes = provider.serviceTypes.flat();
+        } else {
+          console.error("Invalid serviceTypes format for provider ID", provider.userId, ":", provider.serviceTypes);
+          return null;
+        }
+
+        const matchedService = serviceTypes.find(type =>
+          String(type).trim().toLowerCase() === normalizedServiceType
+        );
+
+          if (matchedService) {
+          const providerData = provider.toJSON(); // full object
+          return {
+            ...providerData,
+            matchedServiceType: matchedService.name || matchedService,
+            serviceUri: matchedService.uri || null,
+          };
+        }
+
+        return null;
+      })
+      .filter(Boolean);
+
+    if (filteredProviders.length === 0) {
+      return res.status(404).json({ message: "No providers matched your criteria." });
+    }
+
+    return res.status(200).json(filteredProviders);
   } catch (error) {
     console.error("Search Error:", error);
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 };
