@@ -8,7 +8,8 @@ module.exports = (sequelize) => {
     city: DataTypes.STRING,
     requiredService: DataTypes.STRING,
     preferredStartDate: DataTypes.DATEONLY,
-    message: DataTypes.TEXT
+    message: DataTypes.TEXT , 
+    userId : DataTypes.TEXT
   });
 
   return LeadRequest;
