@@ -7,29 +7,42 @@ exports.createProvider = async (req, res) => {
       businessName,
       businessAddress,
       phoneNumber,
+      description,
       serviceAreas,
+      selectedService,
       serviceTypes,
       certifications,
       galleryImages,
-      userId
+      userId,
+      state
     } = req.body;
+
+    // Access uploaded files
+    const serviceImageFile = req.files?.serviceImage?.[0]; // single file
+    const serviceImage = serviceImageFile?.filename || '';
 
     const newProvider = await ProviderOnboarding.create({
       businessName,
       businessAddress,
       phoneNumber,
-      serviceAreas,
-      serviceTypes,
-      certifications,
-      galleryImages,
-      userId
+      description,
+      selectedService,
+      serviceImage,
+      serviceAreas: JSON.parse(serviceAreas),
+      serviceTypes: JSON.parse(serviceTypes),
+      certifications: JSON.parse(certifications),
+      galleryImages: galleryImages ? JSON.parse(galleryImages) : [],
+      userId,
+      state
     });
 
     res.status(201).json({ message: 'Provider onboarding created', data: newProvider });
   } catch (error) {
+    console.error("Error creating provider:", error);
     res.status(500).json({ error: error.message });
   }
 };
+
 // Get all onboardings
 // fgh
 
@@ -79,3 +92,4 @@ exports.deleteProvider = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
