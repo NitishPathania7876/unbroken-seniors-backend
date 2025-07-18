@@ -32,9 +32,17 @@ module.exports = (sequelize) => {
       allowNull: false,
     },
     serviceImage: {
-      type: DataTypes.STRING, // store image filename or URL
-      allowNull: false,
+      type: DataTypes.TEXT,
+      allowNull: true,
+      get() {
+        const rawValue = this.getDataValue("serviceImage");
+        return rawValue ? JSON.parse(rawValue) : [];
+      },
+      set(value) {
+        this.setDataValue("serviceImage", JSON.stringify(value));
+      },
     },
+
     serviceAreas: {
       type: DataTypes.TEXT,
       get() {

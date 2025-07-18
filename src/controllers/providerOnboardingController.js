@@ -12,40 +12,47 @@ exports.createProvider = async (req, res) => {
       selectedService,
       serviceTypes,
       certifications,
-      galleryImages,
       userId,
-      state
+      state,
     } = req.body;
+console.log('req.files:', req.files);
+    // ✅ Handle files
+    const serviceImageFiles = req.files?.serviceImage || [];
+    const galleryImageFiles = req.files?.galleryImages || [];
+    const certFiles = req.files?.certFiles || [];
 
-    // Access uploaded files
-    const serviceImageFile = req.files?.serviceImage?.[0]; // single file
-    const serviceImage = serviceImageFile?.filename || '';
+    const serviceImage = serviceImageFiles.map(file => file.filename);
+    const galleryImages = galleryImageFiles.map(file => file.filename);
+
+    // ✅ Parse certs and match files
+    const parsedCerts = JSON.parse(certifications || "[]");
+    const finalCerts = parsedCerts.map((cert, i) => ({
+      name: cert.name,
+      file: certFiles[i]?.filename || "",
+    }));
 
     const newProvider = await ProviderOnboarding.create({
       businessName,
       businessAddress,
       phoneNumber,
       description,
-      selectedService,
       serviceImage,
+      galleryImages,
       serviceAreas: JSON.parse(serviceAreas),
       serviceTypes: JSON.parse(serviceTypes),
-      certifications: JSON.parse(certifications),
-      galleryImages: galleryImages ? JSON.parse(galleryImages) : [],
+      selectedService,
+      certifications: finalCerts,
       userId,
-      state
+      state,
     });
 
-    res.status(201).json({ message: 'Provider onboarding created', data: newProvider });
+    res.status(201).json({ message: "Provider onboarding created", data: newProvider });
   } catch (error) {
     console.error("Error creating provider:", error);
     res.status(500).json({ error: error.message });
   }
 };
-
 // Get all onboardings
-// fgh
-
 exports.getAllProviders = async (req, res) => {
   try {
     const providers = await ProviderOnboarding.findAll();
