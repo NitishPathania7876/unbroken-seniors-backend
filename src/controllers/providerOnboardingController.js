@@ -15,20 +15,20 @@ exports.createProvider = async (req, res) => {
       userId,
       state,
     } = req.body;
-console.log('req.files:', req.files);
+
     // ✅ Handle files
     const serviceImageFiles = req.files?.serviceImage || [];
     const galleryImageFiles = req.files?.galleryImages || [];
     const certFiles = req.files?.certFiles || [];
 
-    const serviceImage = serviceImageFiles.map(file => file.filename);
-    const galleryImages = galleryImageFiles.map(file => file.filename);
+    const serviceImage = serviceImageFiles.map(file => file.path);
+    const galleryImages = galleryImageFiles.map(file => file.path);
 
     // ✅ Parse certs and match files
     const parsedCerts = JSON.parse(certifications || "[]");
     const finalCerts = parsedCerts.map((cert, i) => ({
       name: cert.name,
-      file: certFiles[i]?.filename || "",
+      file: certFiles[i]?.path || "",
     }));
 
     const newProvider = await ProviderOnboarding.create({
@@ -67,10 +67,14 @@ exports.getProviderById = async (req, res) => {
     const { id } = req.params;
     const userId = id
     const provider = await ProviderOnboarding.findAll({ where: { userId } });
+    console.log("All providers:", provider);
+
     if (!provider) return res.status(404).json({ message: 'Provider not found' });
     res.status(200).json(provider);
   } catch (error) {
+    console.error("Error fetching provider:", error);
     res.status(500).json({ error: error.message });
+
   }
 };
 

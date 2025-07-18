@@ -5,7 +5,7 @@ const {
   getProviderById  , 
   getAllProviders
 } = require('./../controllers/providerOnboardingController');
-const upload = require('../middlewares/multer')
+const upload = require('../middlewares/multer');
 // const authMiddleware = require('../middlewares/authMiddleware');
 router.post('/create',  upload.fields([
     { name: 'serviceImage', maxCount: 50 },
